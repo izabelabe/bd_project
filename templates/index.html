@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Baza produktów</title>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename = 'styles.css')}}" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Droid+Sans:400,700"
+      rel="stylesheet"
+    />
+</head>
+<body>
+<header>
+    <h1>Baza produktów</h1>
+    <div>
+    <div class="searchf">
+        <form action="/" method="POST">
+            <label for="barcode">Szukaj w Internecie</label>
+            <input type="text" name="barcode" id="barcode" placeholder="Kod kreskowy" autofocus required>
+            <button type="submit">Szukaj</button>
+        </form>
+    </div>
+    <div  class="searchf">
+         <form action="/" method="GET">
+              <label for="product">Szukaj w bazie danych</label>
+            <input type="text" name="product" id="product" placeholder="Kod kreskowy/nazwa" autofocus required>
+             <button type="submit">Szukaj</button>
+        </form>
+    </div>
+    </div>
+</header>
+
+<section id="content">
+<div>
+{% if isProduct == True %}
+    {% if found == True %}
+    <div id="productinfo">
+        {% for p in product %}
+        <div id="productHeader">
+            {% if image != None %}
+                 <img src="/static/images/{{image}}"/>
+             {% endif %}
+            <article>
+        <h1>{{ p.name }}</h1>
+                {% if p.producer != None %}
+            <p id="producerinfo">Producent: {{p.producer}}</p>
+                {% endif %}
+                {% if p.nutriscore != None %}
+                <div id="nutri">Nutri Score: <span id="nutrival">{{p.nutriscore}}</span> </div>
+
+                 {% endif %}
+            </article>
+            </div>
+         {% if p.ingredients != "" %}
+        <article id="ingrList"> <h4>Skład: </h4> <p> {{ p.ingredients }} </p> </article>
+         {% endif %}
+        <table>
+			<tr>
+				<th>Wartość odżywcza</th>
+				<th>100g produktu</th>
+
+			</tr>
+            {% if p.calories != None %}
+                <tr>
+                    <td>Wartość energetyczna</td>
+                    <td>{{p.calories}}</td>
+                </tr>
+            {% endif %}
+            {% if p.fat != None %}
+                <tr>
+                    <td>Tłuszcz</td>
+                    <td>{{p.fat}}</td>
+                </tr>
+             {% endif %}
+             {% if p.saturatedFat != None %}
+            <tr>
+				<td>w tym kwasy tłuszczowe nasycone</td>
+				<td>{{p.saturatedFat}}</td>
+			</tr>
+            {% endif %}
+            {% if p.carbohydrates != None %}
+                <tr>
+                    <td>Węglowodany</td>
+                    <td>{{p.carbohydrates}}</td>
+                </tr>
+            {% endif %}
+            {% if p.sugar != None %}
+                 <tr>
+                    <td>w tym cukry</td>
+                    <td>{{p.sugar}}</td>
+                </tr>
+            {% endif %}
+            {% if p.proteins != None %}
+                 <tr>
+                    <td>Białko</td>
+                    <td>{{p.proteins}}</td>
+                </tr>
+            {% endif %}
+            {% if p.proteins != None %}
+                <tr>
+                    <td>Sól</td>
+                    <td>{{p.salt}}</td>
+                </tr>
+            {% endif %}
+        </table>
+         {% if p.components|length %}
+            <h4 id="addons">Dodatki do żywności:</h4>
+
+            <ul>
+                {% for component in p.components %}
+                <li class="preservative">
+                     <div class="molecule">
+                    <h5>{{ component.name }}</h5>
+                     <p>{{ component.synonyms }}</p>
+
+                        Wzór cząsteczkowy: {{ component.molecular_formula }} <br/>
+                        Masa cząsteczkowa: {{ component.molecular_weight }} <br/>
+                    </div>
+                    <div class="drawing">
+                        <input class="example-input" name="example-input" value = "{{ component.canonical_smiles }}" style="display:none"/>
+                        <canvas class="molecule-canvas"></canvas>
+                       </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% endfor %}
+    </div>
+    {% else %}
+        <h1>Nie znaleziono produktu</h1>
+    {% endif %}
+{% endif %}
+</div>
+</section>
+ <script src="https://unpkg.com/smiles-drawer@1.0.10/dist/smiles-drawer.min.js"></script>
+   <script>
+      let input = document.getElementById("example-input");
+      const page = document.querySelectorAll(".example-input");
+      let canvas = document.querySelectorAll(".molecule-canvas");
+        var pom = 0
+      let options = {};
+      let smilesDrawer = new SmilesDrawer.Drawer(options);
+
+      window.onload = function() {
+        page.forEach(function(node){
+        SmilesDrawer.parse(node.value, function(tree) {
+          smilesDrawer.draw(tree, canvas[pom], "light", false);
+        });
+        pom++;
+        });
+
+
+      };
+    </script>
+
+</body>
+</html>
+
+<!--<script scr="{{url_for('static', filename = 'js/showMolecule.js')}}"></script> -->
